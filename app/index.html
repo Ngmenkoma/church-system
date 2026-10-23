@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Church System</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="topbar">
+    <button type="button" id="menuBtn" class="menu-btn" aria-label="Open menu">&#9776;</button>
+    <span class="topbar-title">Dashboard</span>
+  </header>
+  <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <h2 class="logo">Dashboard</h2>
+    <nav>
+      <a href="#" class="nav-link active" data-page="home">Home</a>
+      <a href="#" class="nav-link" data-page="members">Members</a>
+      <a href="#" class="nav-link" data-page="associations">Associations</a>
+      <a href="#" class="nav-link" data-page="funds">Funds</a>
+      <a href="#" class="nav-link" data-page="summary">Summary</a>
+    </nav>
+    <a href="#" id="logoutLink" style="display:block; margin-top:24px; padding:12px 16px; border-top:1px solid rgba(255,255,255,0.15); color:#9CA3AF; text-decoration:none;">Log out</a>
+  </aside>
+
+  <main class="main">
+    <div class="content">
+
+      <section id="home" class="page">
+        <div class="parish-header">
+          <img src="st-benedict.jpg" alt="St Benedict" class="parish-logo">
+          <h1 class="parish-title">ST BENEDICT'S PARISH, WA</h1>
+        </div>
+
+        <div class="stats">
+          <div class="stat-card">
+            <span class="stat-label">Total Members</span>
+            <span class="stat-number" id="statTotal">0</span>
+            <div class="stat-split">
+              <span>Active: <strong id="statActive">0</strong></span>
+              <span>Inactive: <strong id="statInactive">0</strong></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Offerings: Last 4 Weeks</h2>
+          <div id="offeringChart" class="chart"></div>
+        </div>
+
+        <div class="card">
+          <h2>Offerings: All Time</h2>
+          <div class="summary">
+            <div class="summary-box">
+              <span class="summary-label">Highest</span>
+              <span class="summary-amount" id="allHigh">GH₵ 0.00</span>
+              <span class="summary-week" id="allHighInfo"></span>
+            </div>
+            <div class="summary-box">
+              <span class="summary-label">Average</span>
+              <span class="summary-amount" id="allAvg">GH₵ 0.00</span>
+              <span class="summary-week" id="allAvgInfo"></span>
+            </div>
+            <div class="summary-box">
+              <span class="summary-label">Lowest</span>
+              <span class="summary-amount" id="allLow">GH₵ 0.00</span>
+              <span class="summary-week" id="allLowInfo"></span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="members" class="page hidden">
+        <div class="page-header">
+          <div>
+            <h1>Members</h1>
+            <p class="subtitle">Click a row to open the member's profile.</p>
+          </div>
+          <button id="addMemberBtn" class="add-btn">+ ADD</button>
+        </div>
+
+        <input type="text" id="memberSearch" class="search" placeholder="Search by name or membership number...">
+
+        <div class="card">
+          <h2>Member List</h2>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Membership ID</th>
+                  <th>Full Name</th>
+                  <th>Association</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="memberRows"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="associations" class="page hidden">
+        <div class="page-header">
+          <div>
+            <h1>Associations</h1>
+            <p class="subtitle">Click a name to see the association's details.</p>
+          </div>
+          <button id="addAssociationBtn" class="add-btn">+ ADD</button>
+        </div>
+
+        <input type="text" id="associationSearch" class="search" placeholder="Search by association name...">
+
+        <div class="card">
+          <h2>Association List</h2>
+          <ul id="associationNames" class="name-list"></ul>
+        </div>
+      </section>
+
+      <section id="funds" class="page hidden">
+        <div class="page-header">
+          <div>
+            <h1>Funds</h1>
+            <p class="subtitle">Use + ADD OFFERING for any date, or + Add Mass inside a week. Click an entry to see its details and ranking.</p>
+          </div>
+          <button id="addFundBtn" class="add-btn">+ ADD OFFERING</button>
+        </div>
+
+        <input type="text" id="fundSearch" class="search" placeholder="Search by occasion, date or amount...">
+
+        <div id="weekCards"></div>
+      </section>
+
+      <section id="summary" class="page hidden">
+        <div class="page-header">
+          <div>
+            <h1>Summary</h1>
+            <p class="subtitle">A quick count of the members in the system.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Members at a Glance</h2>
+          <div class="summary" id="summaryBoxes"></div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Member pop-up (add, view, edit) -->
+  <div id="formModal" class="modal hidden">
+    <div class="modal-box wide">
+      <button type="button" id="closeForm" class="close-btn">&times;</button>
+      <div id="memberHeader" class="hidden"></div>
+
+      <form id="memberForm">
+        <h2 id="memberFormTitle">Add Member</h2>
+
+        <fieldset id="memberFieldset" class="form-fields">
+          <div class="two-col">
+            <h3>Personal Details</h3>
+            <label>Membership Number <input type="text" id="membershipNumber" required></label>
+            <label>First Name <input type="text" id="firstName" required></label>
+            <label>Middle Name <input type="text" id="middleName"></label>
+            <label>Sur Name <input type="text" id="surName" required></label>
+            <label>Date of Birth <input type="date" id="dob" required></label>
+            <label>Gender
+              <select id="gender" required>
+                <option value="">Select...</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+              </select>
+            </label>
+            <label>Place of Birth <input type="text" id="pob" required></label>
+            <label>Home Town <input type="text" id="homeTown" required></label>
+            <label>Father <input type="text" id="father"></label>
+            <label>Mother <input type="text" id="mother"></label>
+            <label>Status
+              <select id="status">
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+              </select>
+            </label>
+
+            <h3>Association and Leadership</h3>
+            <label>Association
+              <select id="association">
+                <option value="">None</option>
+              </select>
+            </label>
+            <label>Leadership Role(s) <input type="text" id="leadership" placeholder="e.g. Chairman, Catechist"></label>
+
+            <h3>Baptism</h3>
+            <label>Baptised?
+              <select id="baptised">
+                <option value="No">No</option>
+                <option value="Yes">Yes</option>
+              </select>
+            </label>
+            <div id="baptismDetails" class="hidden">
+              <label>Date of Baptism <input type="date" id="baptismDate"></label>
+              <label>Administered By <input type="text" id="baptismBy"></label>
+              <label>Place of Baptism <input type="text" id="baptismPlace"></label>
+              <label>Godfather / Godmother <input type="text" id="baptismGod"></label>
+            </div>
+
+            <h3>First Communion</h3>
+            <label>Received First Communion?
+              <select id="communion">
+                <option value="No">No</option>
+                <option value="Yes">Yes</option>
+              </select>
+            </label>
+            <div id="firstCommunionDetails" class="hidden">
+              <label>Date of First Communion <input type="date" id="firstcommunionDate"></label>
+              <label>Administered By <input type="text" id="firstCommunionBy"></label>
+              <label>Place of First Communion <input type="text" id="firstcommunionPlace"></label>
+            </div>
+
+            <h3>Confirmation</h3>
+            <label>Confirmed?
+              <select id="confirmed">
+                <option value="No">No</option>
+                <option value="Yes">Yes</option>
+              </select>
+            </label>
+            <div id="confirmationDetails" class="hidden">
+              <label>Date of Confirmation <input type="date" id="confirmationDate"></label>
+              <label>Administered By <input type="text" id="confirmationBy"></label>
+              <label>Place of Confirmation <input type="text" id="confirmationPlace"></label>
+              <label>Godfather / Godmother <input type="text" id="confirmationGod"></label>
+            </div>
+
+            <h3>Marriage</h3>
+            <label>Married?
+              <select id="married">
+                <option value="No">No</option>
+                <option value="Yes">Yes</option>
+              </select>
+            </label>
+            <div id="marriageDetails" class="hidden">
+              <label>Name of Spouse <input type="text" id="spouse"></label>
+              <label>Date of Marriage Ceremony <input type="date" id="marriageDate"></label>
+              <label>Place of Marriage Ceremony <input type="text" id="marriagePlace"></label>
+              <label>Administered By <input type="text" id="marriageBy"></label>
+            </div>
+
+            <h3>Transfer</h3>
+            <label>Transferred from another parish?
+              <select id="transferred">
+                <option value="No">No</option>
+                <option value="Yes">Yes</option>
+              </select>
+            </label>
+            <div id="transferDetails" class="hidden">
+              <label>Previous Parish <input type="text" id="transferParish"></label>
+              <label>Date of Transfer <input type="date" id="transferDate"></label>
+            </div>
+          </div>
+        </fieldset>
+
+        <div id="memberAddActions">
+          <button type="submit">Save Member</button>
+        </div>
+
+        <div id="memberViewActions" class="action-bar hidden">
+          <button type="button" id="deleteMemberBtn" class="delete-btn">Delete</button>
+          <button type="button" id="editMemberBtn">Edit</button>
+          <button type="submit" id="saveMemberBtn" class="save-btn" disabled>Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Association pop-up (add, view, edit) -->
+  <div id="assocFormModal" class="modal hidden">
+    <div class="modal-box">
+      <button type="button" id="closeAssocForm" class="close-btn">&times;</button>
+      <div id="assocHeader" class="hidden"></div>
+
+      <form id="associationForm">
+        <h2 id="assocFormTitle">Add Association</h2>
+
+        <fieldset id="assocFieldset" class="form-fields">
+          <label>Name of Association <input type="text" id="assocName" required></label>
+
+          <h3>Number of Members</h3>
+          <div class="field-grid metric">
+            <label>Males <input type="number" id="assocMales" min="0" required></label>
+            <label>Females <input type="number" id="assocFemales" min="0" required></label>
+          </div>
+
+          <h3>Executives</h3>
+          <div id="executiveRows"></div>
+          <button type="button" id="addExecBtn" class="secondary-btn">+ Add another executive</button>
+        </fieldset>
+
+        <div id="assocAddActions">
+          <button type="submit">Save Association</button>
+        </div>
+
+        <div id="assocViewActions" class="action-bar hidden">
+          <button type="button" id="deleteAssocBtn" class="delete-btn">Delete</button>
+          <button type="button" id="editAssocBtn">Edit</button>
+          <button type="submit" id="saveAssocBtn" class="save-btn" disabled>Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Offering pop-up (add, view, edit) -->
+  <div id="fundFormModal" class="modal hidden">
+    <div class="modal-box">
+      <button type="button" id="closeFundForm" class="close-btn">&times;</button>
+      <div id="fundHeader" class="hidden"></div>
+
+      <form id="fundForm">
+        <h2 id="fundFormTitle">Add Offering</h2>
+
+        <fieldset id="fundFieldset" class="form-fields">
+          <label>Occasion <input type="text" id="fundOccasion" placeholder="e.g. Sunday 1st Mass" required></label>
+          <label>Date <input type="date" id="fundDate" required></label>
+          <label>Amount (GH₵) <input type="number" id="fundAmount" min="0" step="0.01" required></label>
+        </fieldset>
+
+        <div id="fundAddActions">
+          <button type="submit">Save Offering</button>
+        </div>
+
+        <div id="fundViewActions" class="action-bar hidden">
+          <button type="button" id="deleteFundBtn" class="delete-btn">Delete</button>
+          <button type="button" id="editFundBtn">Edit</button>
+          <button type="submit" id="saveFundBtn" class="save-btn" disabled>Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete confirmation (Yes / No) -->
+  <div id="confirmModal" class="modal hidden">
+    <div class="modal-box" style="max-width: 420px;">
+      <p id="confirmText" style="margin: 0; font-size: 18px; font-weight: 600;">Are you sure you want to delete this?</p>
+      <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 25px;">
+        <button type="button" id="confirmNo">No</button>
+        <button type="button" id="confirmYes" class="delete-btn">Yes</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
