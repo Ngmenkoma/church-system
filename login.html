@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Church System - Log in</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+      background: #F9F6F0;
+      color: #1F2937;
+    }
+
+    .box {
+      width: 100%;
+      max-width: 400px;
+      background: white;
+      border: 1px solid #E8E2D6;
+      border-top: 4px solid #D97706;
+      border-radius: 16px;
+      padding: 32px 28px;
+      box-shadow: 0 10px 30px rgba(31, 41, 55, 0.12);
+      text-align: center;
+    }
+
+    img {
+      height: 80px;
+      width: auto;
+      border-radius: 10px;
+      border: 2px solid rgba(217, 119, 6, 0.7);
+      margin-bottom: 14px;
+    }
+
+    h1 {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 22px;
+      margin: 0 0 4px;
+      letter-spacing: 0.5px;
+    }
+
+    p {
+      color: #5B6472;
+      margin: 0 0 22px;
+      font-size: 15px;
+    }
+
+    label {
+      display: block;
+      text-align: left;
+      font-size: 13px;
+      font-weight: 600;
+      color: #5B6472;
+      margin-bottom: 14px;
+    }
+
+    input[type="password"],
+    input[type="text"] {
+      width: 100%;
+      padding: 11px 12px;
+      margin-top: 5px;
+      border: 1px solid #D6D0C4;
+      border-radius: 6px;
+      font-size: 16px;
+      font-family: inherit;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #D97706;
+      box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.18);
+    }
+
+    .show {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 400;
+      margin-bottom: 18px;
+    }
+
+    .show input {
+      width: auto;
+      margin: 0;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #991B1B;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    button:hover:not(:disabled) {
+      background: #7F1D1D;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .error {
+      color: #B42318;
+      font-size: 14px;
+      min-height: 20px;
+      margin-top: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="box">
+    <img src="/st-benedict.jpg" alt="St Benedict" onerror="this.style.display='none'">
+    <h1>ST BENEDICT'S PARISH, WA</h1>
+    <p>Enter the password to open the system.</p>
+
+    <form id="loginForm">
+      <label>Password
+        <input type="password" id="password" autocomplete="current-password" required autofocus>
+      </label>
+
+      <label class="show">
+        <input type="checkbox" id="showPassword"> Show password
+      </label>
+
+      <button type="submit" id="loginBtn">Log in</button>
+      <div class="error" id="loginError"></div>
+    </form>
+  </div>
+
+  <script>
+    const form = document.getElementById("loginForm");
+    const box = document.getElementById("password");
+    const button = document.getElementById("loginBtn");
+    const error = document.getElementById("loginError");
+
+    document.getElementById("showPassword").addEventListener("change", function (e) {
+      box.type = e.target.checked ? "text" : "password";
+    });
+
+    form.addEventListener("submit", async function (e) {
+      e.preventDefault();
+      error.textContent = "";
+      button.disabled = true;
+
+      try {
+        const response = await fetch("/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ password: box.value })
+        });
+
+        let data = {};
+        try {
+          data = await response.json();
+        } catch (err) {
+          // no body
+        }
+
+        if (response.ok) {
+          window.location.href = "/";
+          return;
+        }
+
+        error.textContent = data.error || "Could not log in.";
+      } catch (err) {
+        error.textContent = "Could not reach the server. Is it running?";
+      }
+
+      button.disabled = false;
+      box.focus();
+      box.select();
+    });
+  </script>
+
+</body>
+</html>
